@@ -9,9 +9,12 @@ from crawly import *
 
 #################### CONFIG ######################
 
-REGIONS = {"montreal":("/b-grand-montreal","/k0l80002"), "toronto":("/b-gta-greater-toronto-area", "/k0l1700272")}
-max_pages = 1
+search_terms = ["macbook retina 13 256 8", "macbook retina 15", "hasselblad", "leica"]
 region = "montreal"
+max_pages = 1
+
+
+REGIONS = {"montreal":("/b-grand-montreal","/k0l80002"), "toronto":("/b-gta-greater-toronto-area", "/k0l1700272")}
 
 #################### CLASSES #####################
 
@@ -35,17 +38,22 @@ class SubListing(MainListing):
 
 ################### FUNCTIONS ####################
 
+
 # This function parses the search query into a valid Kijiji link
-def get_url(keyword, region, max_pages):
+def get_url(keywords, region, max_pages):
 
     location = REGIONS[region][0]
+    keywords = "/" + keywords
     code = REGIONS[region][1]
-    url = []
+    urls = []
 
+    while True:
         try: 
             for i in xrange(max_pages):
-                url = "http://www.kijiji.ca" + location + "/" + keyword + code
+                page = "/page-" + str(i + 1)
+                url = "http://www.kijiji.ca" + location + keywords + page + code
                 urls.append(url)
+                print url
             break
         except:
             print "[Error] Search error."
@@ -57,46 +65,48 @@ def get_url(keyword, region, max_pages):
 # This function obtains the properties of each listing and returns a list of MainListing instances
 def select_main_listings(response):
 
-    titles = response.xpath('//div[not(@class="search-item top-feature ")]/div/div/div[@class="title"]/a/text()')
-    titles = [_.strip() for _ in titles]
+    titles = response.xpath('//div[not(@class="search-item top-feature " or @class="search-item cas-channel regular-ad third-party" or @class="search-item cas-channel top-feature  third-party")]/div/div/div[@class="title"]/a/text()')
+    titles = [title.strip() for title in titles]
     print len(titles)
-    print "-" * 80
 
-#    (@class="search-item cas-channel regular-ad third-party")
-
-    dates = response.xpath('//div[not(@class="search-item top-feature ")]/div/div/div/span[@class="date-posted"]/text()')
-    dates = [_.strip() for _ in dates]
+    dates = response.xpath('//div[not(@class="search-item top-feature " or @class="search-item cas-channel regular-ad third-party" or @class="search-item cas-channel top-feature  third-party")]/div/div/div/span[@class="date-posted"]/text()')
+    dates = [date.strip() for date in dates]
     print len(dates)
-    print "-" * 80
 
-    prices = response.xpath('//div[not(@class="search-item top-feature ")]/div/div/div[@class="price"]/text()')
-    prices = [_.strip().replace(u"\xa0", u"").replace(u"$",u"").replace(u",",".") for _ in prices]
+    prices = response.xpath('//div[not(@class="search-item top-feature " or @class="search-item cas-channel regular-ad third-party" or @class="search-item cas-channel top-feature  third-party")]/div/div/div[@class="price"]/text()')
+    prices = [price.strip().replace(u"\xa0", u"").replace(u"$",u"").replace(u",",".") for price in prices]
     print len(prices)
-    print "-" * 80
 
-    links = response.xpath('//div[not(@class="search-item top-feature ")]/div/div/div[@class="title"]/a/@href')
-    links = [_.strip() for _ in links]
+    links = response.xpath('//div[not(@class="search-item top-feature " or @class="search-item cas-channel regular-ad third-party" or @class="search-item cas-channel top-feature  third-party")]/div/div/div[@class="title"]/a/@href')
+    links = [link.strip() for link in links]
     print len(links)
-    print "-" * 80
 
-    main_listings = [MainListing(titles[i], prices[i], dates[i], links[i]) for i, _ in enumerate(titles)]
+    main_listings = [MainListing(titles[i], prices[i], dates[i], links[i]) for i, title in enumerate(titles)]
 
     return main_listings
 
 
 ##################### MAIN #######################
 
-keyword = prompt("-")
-urls = get_url(keyword, region, max_pages)
+main_listings = []
+sub_listings = []
+
+print "-" * 80
+
+keywords = prompt("-")
+urls = get_url(keywords, region, max_pages)
+
+print "-" * 80
+
 for url in urls:
     response = load_page(url)
+    main_listings += select_main_listings(response)
 
-main_listings = select_main_listings(response)
+print "-" * 80
 
-fields = {"Title":"title", "Price":"price", "Date":"date", "Link":"link"}
-pretty_print(main_listings, fields.values())
+fields = ["title", "price", "date", "link"]
+pretty_print(main_listings, fields)
 export_csv(keywords, main_listings, fields)
-
 
 
 

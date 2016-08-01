@@ -5,18 +5,17 @@ from lxml import html
 
 import sys
 import csv
-from operator import attrgetter
 
 ################### FUNCTIONS ####################
 
 
-# This function prompts the keyord and returns it with - as encoding
+# This function prompts the keyord and returns it with chosen character as encoding
 def prompt(character):
 
-    keyword = raw_input("Enter search query >>> ")
-    keyword = keywords.strip().replace(" ", character) 
+    keywords = raw_input("Enter search query >>> ")
+    keywords = keywords.strip().replace(" ", character) 
 
-    return keyword
+    return keywords
 
 
 # This function fetches the website and returns an html object
@@ -39,14 +38,25 @@ def load_page(url):
 
 
 # This function prints listings
-def pretty_print(objects, arguments):
+def pretty_print(objects, fields):
 
     print "-" * 80
 
-    for j in arguments:
-        for i, listing in enumerate(data):
+    for j in fields:
+        for i, obj in enumerate(objects):
             i += 1
-            print "[{:2}]".format(i), getattr(objects, j)
+            print "[{:2}]".format(i), getattr(obj, j)
+        print "-" * 80 
+
+
+def table_print(objects, fields):
+
+    row_headers = [field.capitalize() for field in fields]
+
+    for j in fields:
+        for i, obj in enumerate(objects):
+            i += 1
+            print "[{:2}]".format(i), getattr(obj, j)
         print "-" * 80
 
 
@@ -54,7 +64,8 @@ def pretty_print(objects, arguments):
 def export_csv(filename, objects, fields):
 
     if ".csv" not in filename: filename = filename + ".csv"
-    row_headers = fields.keys()
+
+    row_headers = [field.capitalize() for field in fields]
 
     try :
         file = open(filename, "a")
@@ -65,35 +76,8 @@ def export_csv(filename, objects, fields):
         writer.writerow(row_headers)
 
     for obj in objects:
-        row = [attrgetter(fields[header])(obj) for header in row_headers]
-        for count, column in enumerate(row):
-            if callable(column):
-                row[count] = column()
-            if type(column) is unicode:
-                row[count] = column.encode('utf8')
+        row = [getattr(obj, field) for field in fields]
+        row = [column.encode('utf-8') for column in row]
         writer.writerow(row)
-
-#    for i, object in enumerate(objects):
-#        for j in arguments:
-#            i += 1
-#            row = [str(i), getattr(data, j), listing.price, listing.date, listing.link]
-#            row = [_.encode('utf-8') for _ in row]
-#            writer.writerow(row)
 
     print "[Info] Wrote to {}".format(filename)
-
-
-# This function exports listings as csv file:
-def pprint(filename, objects, fields):
-
-    write = csv.writer(sys.stdout)
-    writer.writerow(row_headers)
-
-    for obj in objects:
-        row = [attrgetter(fields[header])(obj) for header in row_headers]
-        for count, column in enumerate(row):
-            if callable(column):
-                row[count] = column()
-            if type(column) is unicode:
-                row[count] = column.encode('utf8')
-        writer.writerow(row)
