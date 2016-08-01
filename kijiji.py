@@ -88,7 +88,7 @@ def parse_main_listings(response):
 
 def main():
 
-    print "\x1b[8;80;160t"
+    #print "\x1b[8;80;160t"
     fields = ["title", "price", "date", "link"]
     main_listings = []
     sub_listings = []
