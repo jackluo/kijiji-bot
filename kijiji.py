@@ -11,8 +11,7 @@ from crawly import *
 
 search_terms = ["macbook retina 13 256 8", "macbook retina 15", "hasselblad", "leica"]
 region = "montreal"
-max_pages = 1
-
+max_pages = 3
 
 REGIONS = {"montreal":("/b-grand-montreal","/k0l80002"), "toronto":("/b-gta-greater-toronto-area", "/k0l1700272")}
 
@@ -50,10 +49,12 @@ def get_url(keywords, region, max_pages):
     while True:
         try: 
             for i in xrange(max_pages):
+
                 page = "/page-" + str(i + 1)
                 url = "http://www.kijiji.ca" + location + keywords + page + code
                 urls.append(url)
-                print url
+                print "[Info]", "URL found: ", url
+
             break
         except:
             print "[Error] Search error."
@@ -63,50 +64,46 @@ def get_url(keywords, region, max_pages):
 
 
 # This function obtains the properties of each listing and returns a list of MainListing instances
-def select_main_listings(response):
+def parse_main_listings(response):
 
     titles = response.xpath('//div[not(@class="search-item top-feature " or @class="search-item cas-channel regular-ad third-party" or @class="search-item cas-channel top-feature  third-party")]/div/div/div[@class="title"]/a/text()')
-    titles = [title.strip() for title in titles]
-    print len(titles)
+    titles = [title.strip().replace(u"\xa0", u"") for title in titles]
 
     dates = response.xpath('//div[not(@class="search-item top-feature " or @class="search-item cas-channel regular-ad third-party" or @class="search-item cas-channel top-feature  third-party")]/div/div/div/span[@class="date-posted"]/text()')
-    dates = [date.strip() for date in dates]
-    print len(dates)
+    dates = [date.strip().replace(u"\xa0", u"") for date in dates]
 
     prices = response.xpath('//div[not(@class="search-item top-feature " or @class="search-item cas-channel regular-ad third-party" or @class="search-item cas-channel top-feature  third-party")]/div/div/div[@class="price"]/text()')
     prices = [price.strip().replace(u"\xa0", u"").replace(u"$",u"").replace(u",",".") for price in prices]
-    print len(prices)
 
     links = response.xpath('//div[not(@class="search-item top-feature " or @class="search-item cas-channel regular-ad third-party" or @class="search-item cas-channel top-feature  third-party")]/div/div/div[@class="title"]/a/@href')
-    links = [link.strip() for link in links]
-    print len(links)
+    links = [link.strip().replace(u"\xa0", u"") for link in links]
 
-    main_listings = [MainListing(titles[i], prices[i], dates[i], links[i]) for i, title in enumerate(titles)]
+    main_listings = [MainListing(titles[i], prices[i], dates[i], links[i]) for i, title in enumerate(titles) if (u"Recherch" or u"Looking for") not in title]
 
     return main_listings
 
 
 ##################### MAIN #######################
 
-main_listings = []
-sub_listings = []
 
-print "-" * 80
+def main():
 
-keywords = prompt("-")
-urls = get_url(keywords, region, max_pages)
+    print "\x1b[8;80;160t"
+    fields = ["title", "price", "date", "link"]
+    main_listings = []
+    sub_listings = []
 
-print "-" * 80
+    keywords = prompt("-")
+    urls = get_url(keywords, region, max_pages)
 
-for url in urls:
-    response = load_page(url)
-    main_listings += select_main_listings(response)
+    for url in urls:
+        response = load(url)
+        main_listings += parse_main_listings(response)
 
-print "-" * 80
-
-fields = ["title", "price", "date", "link"]
-pretty_print(main_listings, fields)
-export_csv(keywords, main_listings, fields)
+    output_console(main_listings, fields)
+    output_csv(keywords, main_listings, fields)
 
 
+if __name__ == "__main__":
+    main()
 

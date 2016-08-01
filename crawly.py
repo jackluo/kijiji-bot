@@ -12,14 +12,14 @@ import csv
 # This function prompts the keyord and returns it with chosen character as encoding
 def prompt(character):
 
-    keywords = raw_input("Enter search query >>> ")
+    keywords = raw_input("[Info] Enter search query >>> ")
     keywords = keywords.strip().replace(" ", character) 
 
     return keywords
 
 
 # This function fetches the website and returns an html object
-def load_page(url):
+def load(url):
 
     try:
         if "http://" not in url: url = "http://"+ url
@@ -37,7 +37,7 @@ def load_page(url):
     return response
 
 
-# This function prints listings
+
 def pretty_print(objects, fields):
 
     print "-" * 80
@@ -48,20 +48,29 @@ def pretty_print(objects, fields):
             print "[{:2}]".format(i), getattr(obj, j)
         print "-" * 80 
 
-
-def table_print(objects, fields):
+# This function prints listings to console
+def output_console(objects, fields):
 
     row_headers = [field.capitalize() for field in fields]
 
-    for j in fields:
-        for i, obj in enumerate(objects):
-            i += 1
-            print "[{:2}]".format(i), getattr(obj, j)
-        print "-" * 80
+    print "-" * 160
+    print "[##]  ",
+    for i, column in enumerate(row_headers):  
+        print "{:32}    ".format(column[:32]), 
+    print ""
 
+    for i, obj in enumerate(objects):
+        row = [getattr(obj, field) for field in fields]
+        row = [column.encode('utf-8') for column in row]
 
-# This function exports listings as csv file:
-def export_csv(filename, objects, fields):
+        print "[{:2}]  ".format(i+1),
+        for column in row:
+            print "{:32}    ".format(column[:32]), 
+        print "" 
+    print "-" * 160
+
+# This function exports listings as csv file
+def output_csv(filename, objects, fields):
 
     if ".csv" not in filename: filename = filename + ".csv"
 
