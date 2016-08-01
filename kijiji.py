@@ -4,14 +4,13 @@ import requests
 from lxml import html
 
 import re
-import csv
 
 from crawly import *
 
 #################### CONFIG ######################
 
 REGIONS = {"montreal":("/b-grand-montreal","/k0l80002"), "toronto":("/b-gta-greater-toronto-area", "/k0l1700272")}
-max_pages = 3
+max_pages = 1
 region = "montreal"
 
 #################### CLASSES #####################
@@ -36,28 +35,27 @@ class SubListing(MainListing):
 
 ################### FUNCTIONS ####################
 
-
 # This function parses the search query into a valid Kijiji link
-def get_kijiji_url(max_pages, region):
+def get_url(keyword, region, max_pages):
 
     location = REGIONS[region][0]
     code = REGIONS[region][1]
     url = []
 
-    while True:
-        keyword = raw_input("Enter search query >>> ")
-        keyword = keyword.strip().replace(" ", "-") 
         try: 
-            url.append ("http://www.kijiji.ca"+ location + "/" + keyword + code)
+            for i in xrange(max_pages):
+                url = "http://www.kijiji.ca" + location + "/" + keyword + code
+                urls.append(url)
+            break
         except:
             print "[Error] Search error."
             continue
 
-    return urls, keyword
+    return urls
 
 
 # This function obtains the properties of each listing and returns a list of MainListing instances
-def fetch_main_listings(response):
+def select_main_listings(response):
 
     titles = response.xpath('//div[not(@class="search-item top-feature ")]/div/div/div[@class="title"]/a/text()')
     titles = [_.strip() for _ in titles]
@@ -86,46 +84,19 @@ def fetch_main_listings(response):
     return main_listings
 
 
-# This function prints listings
-def print_listings(listings):
-
-    print "-" * 80
-
-    for j in ["title", "price", "date", "link"]:
-        for i, listing in enumerate(listings):
-            i += 1
-            print "[{:2}]".format(i), getattr(listing, j)
-        print "-" * 80
-
-
-# This function exports listings as csv file:
-def export_listings(listings, keyword):
-
-    filename = keyword + ".csv"
-
-    file = open(filename, "w")
-    writer = csv.writer(file)
-    writer.writerow(["#","Title", "Price", "Date", "Link"])
-
-    for i, listing in enumerate(listings):
-        i += 1
-        row = [str(i), listing.title, listing.price, listing.date, listing.link]
-        row = [_.encode('utf-8') for _ in row]
-        writer.writerow(row)
-
-    print "[Info] Wrote to {}".format(filename)
-
-
 ##################### MAIN #######################
 
-keyword = prompt()
-urls = get_kijiji_url(keyword, max_pages, region)
+keyword = prompt("-")
+urls = get_url(keyword, region, max_pages)
 for url in urls:
-    response = 
+    response = load_page(url)
 
-main_listings = fetch_main_listings(response)
+main_listings = select_main_listings(response)
 
-print_listings(main_listings)
-export_listings(main_listings, keyword)
+fields = {"Title":"title", "Price":"price", "Date":"date", "Link":"link"}
+pretty_print(main_listings, fields.values())
+export_csv(keywords, main_listings, fields)
+
+
 
 
