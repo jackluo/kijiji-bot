@@ -8,6 +8,12 @@ import csv
 
 from crawly import *
 
+#################### CONFIG ######################
+
+REGIONS = {"montreal":("/b-grand-montreal","/k0l80002"), "toronto":("/b-gta-greater-toronto-area", "/k0l1700272")}
+max_pages = 3
+region = "montreal"
+
 #################### CLASSES #####################
 
 
@@ -32,38 +38,33 @@ class SubListing(MainListing):
 
 
 # This function parses the search query into a valid Kijiji link
-def get_kijiji_query(max_pages=1):
+def get_kijiji_url(max_pages, region):
 
-    REGION = "/b-grand-montreal" # Montreal
-    CODE = "/k0l80002" # Montreal
-    page_number = 1
+    location = REGIONS[region][0]
+    code = REGIONS[region][1]
+    url = []
 
     while True:
         keyword = raw_input("Enter search query >>> ")
         keyword = keyword.strip().replace(" ", "-") 
         try: 
-            while page_number <= max_pages:
-                page = "/page-" + str(page_number)
-                print "http://www.kijiji.ca"+ REGION + "/" + keyword + page + CODE
-                response = get_url("http://www.kijiji.ca"+ REGION + "/" + keyword + page + CODE)
-                page_number += 1
-            break
+            url.append ("http://www.kijiji.ca"+ location + "/" + keyword + code)
         except:
             print "[Error] Search error."
             continue
 
-    return response, keyword
+    return urls, keyword
 
 
 # This function obtains the properties of each listing and returns a list of MainListing instances
-def get_main_listings(response):
+def fetch_main_listings(response):
 
     titles = response.xpath('//div[not(@class="search-item top-feature ")]/div/div/div[@class="title"]/a/text()')
     titles = [_.strip() for _ in titles]
     print len(titles)
     print "-" * 80
 
-    (@class="search-item cas-channel regular-ad third-party")
+#    (@class="search-item cas-channel regular-ad third-party")
 
     dates = response.xpath('//div[not(@class="search-item top-feature ")]/div/div/div/span[@class="date-posted"]/text()')
     dates = [_.strip() for _ in dates]
@@ -96,6 +97,7 @@ def print_listings(listings):
             print "[{:2}]".format(i), getattr(listing, j)
         print "-" * 80
 
+
 # This function exports listings as csv file:
 def export_listings(listings, keyword):
 
@@ -116,8 +118,12 @@ def export_listings(listings, keyword):
 
 ##################### MAIN #######################
 
-response, keyword = get_kijiji_query(1)
-main_listings = get_main_listings(response)
+keyword = prompt()
+urls = get_kijiji_url(keyword, max_pages, region)
+for url in urls:
+    response = 
+
+main_listings = fetch_main_listings(response)
 
 print_listings(main_listings)
 export_listings(main_listings, keyword)
