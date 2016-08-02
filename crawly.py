@@ -37,7 +37,6 @@ def load(url):
     return response
 
 
-
 def pretty_print(objects, fields):
 
     print "-" * 80
@@ -48,26 +47,29 @@ def pretty_print(objects, fields):
             print "[{:2}]".format(i), getattr(obj, j)
         print "-" * 80 
 
+
 # This function prints listings to console
 def output_console(objects, fields):
 
     row_headers = [field.capitalize() for field in fields]
 
-    print "-" * 160
-    print "[##]  ",
+    print u"-" * 160
+
+    print u"[##]  ",
     for i, column in enumerate(row_headers):  
-        print "{:32}    ".format(column[:32]), 
+        print u"{:32}    ".format(column[:32]), 
     print ""
 
     for i, obj in enumerate(objects):
         row = [getattr(obj, field) for field in fields]
-        row = [column.encode('utf-8') for column in row]
 
-        print "[{:2}]  ".format(i+1),
+        print u"[{:2}]  ".format(i+1),
         for column in row:
-            print "{:32}    ".format(column[:32]), 
+            print u"{:32}    ".format(column[:32]), 
         print "" 
+
     print "-" * 160
+
 
 # This function exports listings as csv file
 def output_csv(filename, objects, fields):
