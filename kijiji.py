@@ -69,18 +69,11 @@ def parse_main_listings(response):
     base_path = '//div[not(@class="search-item top-feature " or @class="search-item cas-channel regular-ad third-party" or @class="search-item cas-channel top-feature  third-party")]/div/div'
 
     titles = response.xpath(base_path + '/div[@class="title"]/a/text()')
-    titles = [title.strip() for title in titles]
-
     dates = response.xpath(base_path + '/div/span[@class="date-posted"]/text()')
-    dates = [date.strip() for date in dates]
-
     prices = response.xpath(base_path + '/div[@class="price"]/text()')
-    prices = [price.strip().replace(u"\xa0", u"").replace(u"$",u"").replace(u",",".") for price in prices]
-
     links = response.xpath(base_path + '/div[@class="title"]/a/@href')
-    links = [link.strip() for link in links]
 
-    main_listings = [MainListing(titles[i], prices[i], dates[i], links[i]) for i, title in enumerate(titles) if (u"Recherch" or u"Looking for") not in title]
+    main_listings = [MainListing(titles[i].strip(), prices[i].strip().replace(u"\xa0", u"").replace(u"$",u"").replace(u",","."), dates[i].strip(), links[i].strip()) for i, title in enumerate(titles) if (u"Recherch" or u"Looking for") not in title]
 
     return main_listings
 
