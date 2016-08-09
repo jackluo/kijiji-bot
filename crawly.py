@@ -19,11 +19,14 @@ def prompt(character):
 
 
 # This function fetches the website and returns an html object
-def load(url):
+def load(url, headers = {}):
+    
+    if len(headers) == 0: 
+        headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36'}
 
     try:
         if "http://" not in url: url = "http://"+ url
-        response = requests.get(url)
+        response = requests.get(url, headers = headers)
     except:
         print "[ERROR] Connection error."
         quit()
