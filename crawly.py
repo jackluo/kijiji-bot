@@ -10,12 +10,14 @@ import csv
 
 
 # This function prompts the keyord and returns it with chosen character as encoding
-def prompt(character):
+def encode(character, query = None):
 
-    keywords = raw_input("[Info] Enter search query >>> ")
-    keywords = keywords.strip().replace(" ", character) 
+    if not query:
+        query = raw_input("[Info] Enter search query >>> ")
 
-    return keywords
+    query = query.strip().replace(" ", character) 
+
+    return query
 
 
 # This function fetches the website and returns an html object

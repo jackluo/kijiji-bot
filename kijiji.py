@@ -42,16 +42,18 @@ class SubListing(MainListing):
 def get_url(keywords, region, max_pages):
 
     location = REGIONS[region][0]
-    keywords = "/" + keywords
     code = REGIONS[region][1]
+    query = "/" + keywords
     urls = []
 
     while True:
         try: 
             for i in xrange(max_pages):
 
+                BASE_URL = "http://www.kijiji.ca"
                 page = "/page-" + str(i + 1)
-                url = "http://www.kijiji.ca" + location + keywords + page + code
+
+                url = BASE_URL + location + query + page + code
                 urls.append(url)
                 print "[Info]", "URL found: ", url
 
@@ -88,7 +90,7 @@ def main():
     main_listings = []
     sub_listings = []
 
-    keywords = prompt("-")
+    keywords = encode("-")
     urls = get_url(keywords, region, max_pages)
 
     for url in urls:
