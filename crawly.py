@@ -6,50 +6,53 @@ from lxml import html
 import sys
 import csv
 
+#################### CONFIG ######################
+
+debug = False
+print_headers = False
+path_to_chromedriver = "/Users/Admin/Desktop/chromedriver"
+
 ################### FUNCTIONS ####################
 
 
-# This function prompts the keyord and returns it with chosen character as encoding
-def encode(character, query = None):
-
-    if not query:
-        query = raw_input("[Info] Enter search query >>> ")
-
-    query = query.strip().replace(" ", character) 
-
-    return query
-
-
 # This function fetches the website and returns an html object
-def load(url, headers = {}):
+def load(url, client = None, headers = {}):
 
-    if len(headers) == 0: 
+    if not headers: 
         headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36'}
 
+    if not client:
+        client = requests.Session()    
+
     try:
-        response = requests.get(url, headers = headers)
+        response = client.get(url, headers = headers)
+
+        if debug:
+            file = open("url.html", 'w')
+            file.write(response.content)
+        if print_headers:
+            print response.status_code # Response Code  
+            print response.headers # Response Headers
+
     except:
-        print "[ERROR] Connection error."
+        print "[ERROR] Connection error."  
+              
+        if debug:
+            file = open("url.html", 'w')
+            file.write(response.content)
+        if print_headers:
+            print response.status_code # Response Code  
+            print response.headers # Response Headers
         quit()
 
     try:
-        response = html.fromstring(response.text)
+        response = response.content.replace('<!--', '').replace('-->', '')
+        response = html.fromstring(response)
     except:
         print "[ERROR] Parsing error."
         quit()
 
-    return response
-
-
-def pretty_print(objects, fields):
-
-    print "-" * 80
-
-    for j in fields:
-        for i, obj in enumerate(objects):
-            i += 1
-            print "[{:2}]".format(i), getattr(obj, j)
-        print "-" * 80 
+    return response, client
 
 
 # This function prints listings to console

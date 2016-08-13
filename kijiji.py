@@ -9,9 +9,10 @@ from crawly import *
 
 #################### CONFIG ######################
 
+use_search_terms = True
 search_terms = ["macbook retina 13 256 8", "macbook retina 15", "hasselblad", "leica"]
 region = "montreal"
-max_pages = 3
+max_pages = 2
 
 REGIONS = {"montreal":("/b-grand-montreal","/k0l80002"), "toronto":("/b-gta-greater-toronto-area", "/k0l1700272")}
 
@@ -38,12 +39,26 @@ class SubListing(MainListing):
 ################### FUNCTIONS ####################
 
 
-# This function parses the search query into a valid Kijiji link
-def get_url(keywords, region, max_pages):
+# This function gets a list of search queries
+def get_queries():
+
+    queries = []
+
+    while True:
+        query = raw_input("[Info] Enter search query (or press to exit) >>> ")
+        query = keywords.strip().replace(" ", "-")
+        queries.append(query)
+        if not query: break
+
+    return queries
+
+
+# This function parses a search query into a valid Kijiji link
+def get_url(query, region, max_pages):
 
     location = REGIONS[region][0]
     code = REGIONS[region][1]
-    query = "/" + keywords
+    query = "/" + query
     urls = []
 
     while True:
@@ -87,18 +102,24 @@ def main():
 
     #print "\x1b[8;80;160t"
     fields = ["title", "price", "date", "link"]
-    main_listings = []
-    sub_listings = []
 
-    keywords = encode("-")
-    urls = get_url(keywords, region, max_pages)
+    if not use_search_terms:
+        queries = get_queries()
+    else:
+        queries = [search_term.replace(" ", "-") for search_term in search_terms]
 
-    for url in urls:
-        response = load(url)
-        main_listings += parse_main_listings(response)
+    for query in queries:
 
-    output_console(main_listings, fields)
-    output_csv(keywords, main_listings, fields)
+        main_listings = []
+        sub_listings = []
+        urls = get_url(query, region, max_pages)
+
+        for url in urls:
+            response, client = load(url)
+            main_listings += parse_main_listings(response)
+
+        output_console(main_listings, fields)
+        output_csv(query, main_listings, fields)
 
 
 if __name__ == "__main__":
