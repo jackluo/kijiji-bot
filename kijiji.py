@@ -10,7 +10,7 @@ from crawly import *
 #################### CONFIG ######################
 
 use_search_terms = True
-search_terms = ["macbook retina 13 256 8", "macbook retina 15", "hasselblad", "leica"]
+search_file = "searches.txt"
 region = "montreal"
 max_pages = 2
 
@@ -106,7 +106,7 @@ def main():
     if not use_search_terms:
         queries = get_queries()
     else:
-        queries = [search_term.replace(" ", "-") for search_term in search_terms]
+        queries = [search_term.replace(" ", "-") for search_term in open(search_file)]
 
     for query in queries:
 
