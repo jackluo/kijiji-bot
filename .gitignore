@@ -1,6 +1,6 @@
 searches.txt
 login.py
-.csv
+*.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
