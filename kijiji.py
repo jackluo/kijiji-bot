@@ -106,7 +106,7 @@ def main():
     if not use_search_terms:
         queries = get_queries()
     else:
-        queries = [search_term.replace(" ", "-") for search_term in open(search_file)]
+        queries = [search_term.strip().replace(" ", "-") for search_term in open(search_file)]
 
     for query in queries:
 
