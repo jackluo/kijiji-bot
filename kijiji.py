@@ -39,7 +39,7 @@ class SubListing(MainListing):
 ################### FUNCTIONS ####################
 
 
-# This function gets a list of search queries
+# This function gets a list of search queries from prompt
 def get_queries():
 
     queries = []
@@ -49,6 +49,21 @@ def get_queries():
         query = keywords.strip().replace(" ", "-")
         queries.append(query)
         if not query: break
+
+    return queries
+
+
+# This function gets a list of search queries from file
+def get_searches(search_file):
+
+    try:
+        searches = open(search_file)
+    except:
+        searches = open(search_file, "w")
+        print "[Info] Search file created; relaunch program and edit your queries."
+        quit()
+        
+    queries = [search_term.strip().replace(" ", "-") for search_term in open(search_file)]
 
     return queries
 
@@ -106,7 +121,7 @@ def main():
     if not use_search_terms:
         queries = get_queries()
     else:
-        queries = [search_term.strip().replace(" ", "-") for search_term in open(search_file)]
+        queries = get_searches(search_file)
 
     for query in queries:
 
