@@ -9,7 +9,7 @@ from crawly import *
 
 #################### CONFIG ######################
 
-use_search_terms = True
+use_search_terms = False
 search_file = "searches.txt"
 region = "montreal"
 max_pages = 2
@@ -46,8 +46,7 @@ def get_queries():
 
     while True:
         query = raw_input("[Info] Enter search query (or press to exit) >>> ")
-        query = keywords.strip().replace(" ", "-")
-        queries.append(query)
+        queries.append(query.strip().replace(" ", "-"))
         if not query: break
 
     return queries
