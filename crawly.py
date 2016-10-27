@@ -1,5 +1,7 @@
 ##################### HEAD #######################
 
+# Version 1.0
+
 import requests
 from lxml import html
 
