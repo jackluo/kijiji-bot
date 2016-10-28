@@ -84,7 +84,7 @@ def get_url(query, region, max_pages):
 
                 url = BASE_URL + location + query + page + code
                 urls.append(url)
-                print "[Info]", "URL found: ", url
+                print "[Info]", "URL found:", url
 
             break
         except:
