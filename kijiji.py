@@ -104,7 +104,9 @@ def parse_main_listings(response):
     prices = response.xpath(base_path + '/div[@class="price"]/text()')
     links = response.xpath(base_path + '/div[@class="title"]/a/@href')
 
-    main_listings = [MainListing(titles[i].strip(), prices[i].strip().replace(u"\xa0", u"").replace(u"$",u"").replace(u",","."), dates[i].strip(), links[i].strip()) for i, title in enumerate(titles) if (u"Recherch" or u"Looking for") not in title]
+    main_listings = [MainListing(titles[i].strip(), prices[i].strip().replace(u"\xa0", u"")
+                    .replace(u"$",u"").replace(u",","."), dates[i].strip(), links[i].strip()) 
+                    for i, title in enumerate(titles) if (u"Recherch" or u"Looking for") not in title]
 
     return main_listings
 
